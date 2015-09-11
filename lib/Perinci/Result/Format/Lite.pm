@@ -24,7 +24,7 @@ sub __cleanser {
         Data::Clean::JSON->get_cleanser;
     };
     $cleanser;
-);
+}
 
 sub __gen_table {
     my ($data, $header_row, $resmeta, $is_pretty) = @_;
@@ -158,7 +158,7 @@ sub format {
         }
     }
 
-    $res = $res->[2] if $naked;
+    $res = $res->[2] if $is_naked;
 
     warn "Unknown format '$format', fallback to json-pretty"
         unless $format =~ /\Ajson(-pretty)?\z/;
