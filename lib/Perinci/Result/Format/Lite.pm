@@ -6,6 +6,8 @@ use strict;
 use warnings;
 #END IFUNBUILT
 
+use List::Util qw(first);
+
 require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(format);
