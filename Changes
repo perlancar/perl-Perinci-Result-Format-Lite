@@ -1,5 +1,10 @@
 Revision history for Perinci-Result-Format-Lite
 
+0.03    2015-09-15 (PERLANCAR)
+
+	- Add $DATE & $VERSION.
+
+
 0.02    2015-09-12 (PERLANCAR)
 
 	- [Bugfix] Forgot to import List::Util's first().
