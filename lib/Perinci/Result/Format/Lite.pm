@@ -1,5 +1,8 @@
 package Perinci::Result::Format::Lite;
 
+# DATE
+# VERSION
+
 use 5.010001;
 #IFUNBUILT
 use strict;
