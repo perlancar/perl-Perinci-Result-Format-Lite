@@ -200,7 +200,7 @@ sub format {
 1;
 # ABSTRACT: Format enveloped result
 
-=for Pod::Coverage ^()$
+=for Pod::Coverage ^(firstidx)$
 
 =head1 SYNOPSIS
 
