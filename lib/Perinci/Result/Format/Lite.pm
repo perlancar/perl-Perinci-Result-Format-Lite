@@ -15,20 +15,44 @@ require Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(format);
 
+# copy-pasted from List::MoreUtils::PP
+sub firstidx (&@) {
+    my $f = shift;
+    foreach my $i ( 0 .. $#_ )
+        {
+            local *_ = \$_[$i];
+            return $i if $f->();
+        }
+    return -1;
+}
+
 sub __json {
     state $json = do {
-        require JSON;
-        JSON->new->canonical(1)->allow_nonref;
+        eval { require JSON::XS; 1 };
+        if ($@) {
+            require JSON::PP;
+            JSON::PP->new->canonical(1)->allow_nonref;
+        } else {
+            JSON::XS->new->canonical(1)->allow_nonref;
+        }
     };
     $json;
 }
 
-sub __cleanser {
+sub __cleanse {
     state $cleanser = do {
-        require Data::Clean::JSON;
-        Data::Clean::JSON->get_cleanser;
+        eval { require Data::Clean::JSON; 1 };
+        if ($@) {
+            undef;
+        } else {
+            Data::Clean::JSON->get_cleanser;
+        }
     };
-    $cleanser;
+    if ($cleanser) {
+        $cleanser->clean_in_place($_[0]);
+    } else {
+        $_[0];
+    }
 }
 
 sub __gen_table {
@@ -76,13 +100,11 @@ sub __gen_table {
 
     # reorder each row according to requested column order
     if ($column_orders) {
-        require List::MoreUtils;
-
         # 0->2, 1->0, ... (map column position from unordered to ordered)
         my @map0 = sort {
-            my $idx_a = List::MoreUtils::firstidx(sub {$_ eq $a->[1]},
+            my $idx_a = firstidx(sub {$_ eq $a->[1]},
                                                   @$column_orders) // 9999;
-            my $idx_b = List::MoreUtils::firstidx(sub {$_ eq $b->[1]},
+            my $idx_b = firstidx(sub {$_ eq $b->[1]},
                                                   @$column_orders) // 9999;
             $idx_a <=> $idx_b || $a->[1] cmp $b->[1];
         } map {[$_, $columns[$_]]} 0..@columns-1;
@@ -112,7 +134,7 @@ sub __gen_table {
 }
 
 sub format {
-    my ($res, $format, $is_naked) = @_;
+    my ($res, $format, $is_naked, $cleanse) = @_;
 
     if ($format =~ /\Atext(-simple|-pretty)?\z/) {
         my $is_pretty = $format eq 'text-pretty' ? 1 :
@@ -167,7 +189,7 @@ sub format {
 
     warn "Unknown format '$format', fallback to json-pretty"
         unless $format =~ /\Ajson(-pretty)?\z/;
-    __cleanser->clean_in_place($res);
+    __cleanse($res) if ($cleanse//1);
     if ($format eq 'json') {
         return __json->encode($res) . "\n";
     } else {
@@ -188,7 +210,7 @@ sub format {
 
 =head1 FUNCTIONS
 
-=head2 format($res, $format[ , $is_naked ]) => str
+=head2 format($res, $format[ , $is_naked=0, $cleanse=1 ]) => str
 
 
 =head1 ENVIRONMENT
