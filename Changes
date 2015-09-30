@@ -1,5 +1,12 @@
 Revision history for Perinci-Result-Format-Lite
 
+0.05    2015-09-30 (PERLANCAR)
+
+	- Also try to use JSON::Tiny (embedded by
+	  Perinci::CmdLine::Inline), because JSON::PP is not yet core in
+	  perl < 5.14.
+
+
 0.04    2015-09-29 (PERLANCAR)
 
         - Make more suitable for use by Perinci::CmdLine::Inline.
