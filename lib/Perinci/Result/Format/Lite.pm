@@ -26,24 +26,14 @@ sub firstidx (&@) {
     return -1;
 }
 
-my $code_encode_json = do {
-    if    (eval { require JSON::XS; 1 })   { my $json = JSON::XS->new->canonical(1)->allow_nonref; sub { $json->encode(shift) } }
-    elsif (eval { require JSON::Tiny; 1 }) { \&JSON::Tiny::encode_json }
-    elsif (eval { require JSON::PP; 1 })   { my $json = JSON::PP->new->canonical(1)->allow_nonref; sub { $json->encode(shift) } }
-};
-
-my $code_encode_json_pretty = do {
-    if    (eval { require JSON::XS; 1 })   { my $json = JSON::XS->new->canonical(1)->allow_nonref->pretty; sub { $json->encode(shift) } }
-    elsif (eval { require JSON::Tiny; 1 }) { \&JSON::Tiny::encode_json }
-    elsif (eval { require JSON::PP; 1 })   { my $json = JSON::PP->new->canonical(1)->allow_nonref->pretty; sub { $json->encode(shift) } }
-    else { die "Can't find any JSON module" }
-};
-
-my $code_decode_json = do {
-    if    (eval { require JSON::XS; 1 })   { my $json = JSON::XS->new->canonical(1)->allow_nonref; sub { $json->decode(shift) } }
-    elsif (eval { require JSON::Tiny; 1 }) { \&JSON::Tiny::decode_json }
-    elsif (eval { require JSON::PP; 1 })   { my $json = JSON::PP->new->canonical(1)->allow_nonref; sub { $json->decode(shift) } }
-    else { die "Can't find any JSON module" }
+sub _json {
+    state $json = do {
+        if    (eval { require JSON::XS; 1 })   { JSON::XS->new->canonical(1)->allow_nonref }
+        elsif (eval { require JSON::Tiny::Subclassable; 1 }) { JSON::Tiny::Subclassable->new }
+        elsif (eval { require JSON::PP; 1 })   { JSON::PP->new->canonical(1)->allow_nonref }
+        else { die "Can't find any JSON module" }
+    };
+    $json;
 };
 
 sub __cleanse {
@@ -81,7 +71,7 @@ sub __gen_table {
         # from env)
         my $tcos;
         if ($ENV{FORMAT_PRETTY_TABLE_COLUMN_ORDERS}) {
-            $tcos = $code_decode_json->($ENV{FORMAT_PRETTY_TABLE_COLUMN_ORDERS});
+            $tcos = _json->encode($ENV{FORMAT_PRETTY_TABLE_COLUMN_ORDERS});
         } elsif (my $rfos = ($resmeta->{'cmdline.format_options'} //
                                  $resmeta->{format_options})) {
             my $rfo = $rfos->{'text-pretty'} // $rfos->{text} // $rfos->{any};
@@ -198,9 +188,10 @@ sub format {
         unless $format =~ /\Ajson(-pretty)?\z/;
     __cleanse($res) if ($cleanse//1);
     if ($format eq 'json') {
-        return $code_encode_json->($res) . "\n";
+        return _json->encode($res) . "\n";
     } else {
-        return $code_encode_json_pretty->($res);
+        _json->pretty(1);
+        return _json->encode($res);
     }
 }
 
