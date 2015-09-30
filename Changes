@@ -1,5 +1,11 @@
 Revision history for Perinci-Result-Format-Lite
 
+0.06    2015-09-30 (PERLANCAR)
+
+	- Switch from JSON::Tiny to JSON::Tiny::Subclassable because the
+	  latter can do pretty encoding.
+
+
 0.05    2015-09-30 (PERLANCAR)
 
 	- Also try to use JSON::Tiny (embedded by
