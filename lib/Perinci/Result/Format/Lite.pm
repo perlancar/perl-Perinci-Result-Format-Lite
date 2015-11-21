@@ -132,7 +132,7 @@ sub __gen_table {
                     ",",
                     map {
                         my $cell = $_;
-                        $cell =~ s/"/\\"/g;
+                        $cell =~ s/(["\\])/\\$1/g;
                         qq("$cell");
                     } @$row)."\n";
             } @$data
