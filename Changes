@@ -1,5 +1,10 @@
 Revision history for Perinci-Result-Format-Lite
 
+0.07    2015-11-21 (PERLANCAR)
+
+	- Add new format: csv.
+
+
 0.06    2015-09-30 (PERLANCAR)
 
 	- Switch from JSON::Tiny to JSON::Tiny::Subclassable because the
