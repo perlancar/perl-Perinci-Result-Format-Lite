@@ -53,7 +53,7 @@ sub __cleanse {
 }
 
 sub __gen_table {
-    my ($data, $header_row, $resmeta, $is_pretty) = @_;
+    my ($data, $header_row, $resmeta, $format) = @_;
 
     $resmeta //= {};
 
@@ -120,9 +120,23 @@ sub __gen_table {
         $data = $newdata;
     }
 
-    if ($is_pretty) {
+    if ($format eq 'text-pretty') {
         require Text::Table::Tiny;
         Text::Table::Tiny::table(rows=>$data, header_row=>$header_row) . "\n";
+    } elsif ($format eq 'csv') {
+        join(
+            "",
+            map {
+                my $row = $_;
+                join(
+                    ",",
+                    map {
+                        my $cell = $_;
+                        $cell =~ s/"/\\"/g;
+                        qq("$cell");
+                    } @$row)."\n";
+            } @$data
+        );
     } else {
         no warnings 'uninitialized';
         shift @$data if $header_row;
@@ -133,9 +147,9 @@ sub __gen_table {
 sub format {
     my ($res, $format, $is_naked, $cleanse) = @_;
 
-    if ($format =~ /\Atext(-simple|-pretty)?\z/) {
-        my $is_pretty = $format eq 'text-pretty' ? 1 :
-            $format eq 'text-simple' ? 0 : (-t STDOUT);
+    if ($format =~ /\A(text|text-simple|text-pretty|csv)\z/) {
+        $format = $format eq 'text' ?
+            ((-t STDOUT) ? 'text-pretty' : 'text-simple') : $format;
         no warnings 'uninitialized';
         if ($res->[0] !~ /^(2|304)/) {
             my $fres = "ERROR $res->[0]: $res->[1]";
@@ -158,11 +172,11 @@ sub format {
             } elsif (Data::Check::Structure::is_aos($data, {max=>$max})) {
                 return join("", map {"$_\n"} @$data);
             } elsif (Data::Check::Structure::is_aoaos($data, {max=>$max})) {
-                return __gen_table($data, 0, $res->[3], $is_pretty);
+                return __gen_table($data, 0, $res->[3], $format);
             } elsif (Data::Check::Structure::is_hos($data, {max=>$max})) {
                 $data = [map {[$_, $data->{$_}]} sort keys %$data];
                 unshift @$data, ["key", "value"];
-                return __gen_table($data, 1, $res->[3], $is_pretty);
+                return __gen_table($data, 1, $res->[3], $format);
             } elsif (Data::Check::Structure::is_aohos($data, {max=>$max})) {
                 # collect all mentioned fields
                 my %fieldnames;
@@ -175,7 +189,7 @@ sub format {
                     push @$newdata, [map {$row->{$_}} @fieldnames];
                 }
                 unshift @$newdata, \@fieldnames;
-                return __gen_table($newdata, 1, $res->[3], $is_pretty);
+                return __gen_table($newdata, 1, $res->[3], $format);
             } else {
                 $format = 'json-pretty';
             }
