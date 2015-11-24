@@ -124,6 +124,7 @@ sub __gen_table {
         require Text::Table::Tiny;
         Text::Table::Tiny::table(rows=>$data, header_row=>$header_row) . "\n";
     } elsif ($format eq 'csv') {
+        no warnings 'uninitialized';
         join(
             "",
             map {
