@@ -1,5 +1,10 @@
 Revision history for Perinci-Result-Format-Lite
 
+0.09    2015-11-24 (PERLANCAR)
+
+	- csv: Avoid perl undef warning.
+
+
 0.08    2015-11-21 (PERLANCAR)
 
 	- [Bugfix] csv output: Forgot to escape backslash.
