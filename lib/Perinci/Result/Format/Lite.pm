@@ -197,16 +197,25 @@ sub format {
         }
     }
 
+    my $tff = $res->[3]{'table.fields'};
     $res = $res->[2] if $is_naked;
 
     warn "Unknown format '$format', fallback to json-pretty"
         unless $format =~ /\Ajson(-pretty)?\z/;
     __cleanse($res) if ($cleanse//1);
-    if ($format eq 'json') {
-        return _json->encode($res) . "\n";
-    } else {
-        _json->pretty(1);
-        return _json->encode($res);
+    if ($format =~ /json/) {
+        if ($tff && _json->can("sort_by") &&
+                eval { require Sort::ByExample; 1}) {
+            my $cmp = Sort::ByExample->cmp($tff);
+            _json->sort_by(sub { $cmp->($JSON::PP::a, $JSON::PP::b) });
+        }
+
+        if ($format eq 'json') {
+            return _json->encode($res) . "\n";
+        } else {
+            _json->pretty(1);
+            return _json->encode($res);
+        }
     }
 }
 
