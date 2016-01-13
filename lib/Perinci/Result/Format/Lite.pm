@@ -181,17 +181,15 @@ sub format {
             } elsif (Data::Check::Structure::is_aohos($data, {max=>$max})) {
                 # collect all mentioned fields
                 my @fieldnames;
-                my $hide_unknown_fields;
                 if ($res->[3] && $res->[3]{'table.fields'} &&
                         $res->[3]{'table.hide_unknown_fields'}) {
-                    $hide_unknown_fields = 1;
                     @fieldnames = @{ $res->[3]{'table.fields'} };
                 } else {
                     my %fieldnames;
                     for my $row (@$data) {
                         $fieldnames{$_}++ for keys %$row;
                     }
-                    my @fieldnames = sort keys %fieldnames;
+                    @fieldnames = sort keys %fieldnames;
                 }
                 my $newdata = [];
                 for my $row (@$data) {
