@@ -180,17 +180,27 @@ sub format {
                 return __gen_table($data, 1, $res->[3], $format);
             } elsif (Data::Check::Structure::is_aohos($data, {max=>$max})) {
                 # collect all mentioned fields
-                my %fieldnames;
-                for my $row (@$data) {
-                    $fieldnames{$_}++ for keys %$row;
+                my @fieldnames;
+                my $hide_unknown_fields;
+                if ($res->[3] && $res->[3]{'table.fields'} &&
+                        $res->[3]{'table.hide_unknown_fields'}) {
+                    $hide_unknown_fields = 1;
+                    @fieldnames = @{ $res->[3]{'table.fields'} };
+                } else {
+                    my %fieldnames;
+                    for my $row (@$data) {
+                        $fieldnames{$_}++ for keys %$row;
+                    }
+                    my @fieldnames = sort keys %fieldnames;
                 }
-                my @fieldnames = sort keys %fieldnames;
                 my $newdata = [];
                 for my $row (@$data) {
                     push @$newdata, [map {$row->{$_}} @fieldnames];
                 }
                 unshift @$newdata, \@fieldnames;
-                return __gen_table($newdata, 1, $res->[3], $format);
+                return __gen_table(
+                    $newdata, 1, $hide_unknown_fields ? undef : $res->[3],
+                    $format);
             } else {
                 $format = 'json-pretty';
             }
