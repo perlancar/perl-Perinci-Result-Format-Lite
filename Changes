@@ -1,5 +1,13 @@
 Revision history for Perinci-Result-Format-Lite
 
+0.10    2016-01-13 (PERLANCAR)
+
+	- text format: Observe table.hide_unknown_fields result metadata.
+
+	- [experimental] json format: Sort hash keys using 'table.fields' result
+	  metadata, if any.
+
+
 0.09    2015-11-24 (PERLANCAR)
 
 	- csv: Avoid perl undef warning.
