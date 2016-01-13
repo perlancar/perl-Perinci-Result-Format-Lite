@@ -34,7 +34,13 @@ subtest "text-pretty" => sub {
 };
 
 subtest "json-pretty" => sub {
-    like($fmt->([200, "OK", [1,2]], 'json-pretty'), qr/\[\s+200,\s+"OK",\s+\[\s+1,\s+2\s+\]\s+\]/s);
+    like($fmt->([200, "OK", [1,2]], 'json-pretty'),
+         qr/\[\s*
+            200,\s*
+            "OK",\s*
+            \[\s*1,\s*2\s*\]
+            (,\s*\{\})?
+            \s*\]/sx);
 };
 
 # XXX test: opt:naked=1

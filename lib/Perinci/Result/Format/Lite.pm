@@ -198,9 +198,7 @@ sub format {
                     push @$newdata, [map {$row->{$_}} @fieldnames];
                 }
                 unshift @$newdata, \@fieldnames;
-                return __gen_table(
-                    $newdata, 1, $hide_unknown_fields ? undef : $res->[3],
-                    $format);
+                return __gen_table($newdata, 1, $res->[3], $format);
             } else {
                 $format = 'json-pretty';
             }
@@ -210,8 +208,10 @@ sub format {
     my $tff = $res->[3]{'table.fields'};
     $res = $res->[2] if $is_naked;
 
-    warn "Unknown format '$format', fallback to json-pretty"
-        unless $format =~ /\Ajson(-pretty)?\z/;
+    unless ($format =~ /\Ajson(-pretty)?\z/) {
+        warn "Unknown format '$format', fallback to json-pretty";
+        $format = 'json-pretty';
+    }
     __cleanse($res) if ($cleanse//1);
     if ($format =~ /json/) {
         if ($tff && _json->can("sort_by") &&
