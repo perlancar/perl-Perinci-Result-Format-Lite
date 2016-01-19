@@ -1,5 +1,11 @@
 Revision history for Perinci-Result-Format-Lite
 
+0.12    2016-01-19 (PERLANCAR)
+
+	- Observe result metadata table.field_units (currently just adds '
+	  (UNIT)' to headers).
+
+
 0.11    2016-01-13 (PERLANCAR)
 
 	- [Bugfix] Remove extra 'my', derp.
