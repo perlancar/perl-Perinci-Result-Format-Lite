@@ -96,7 +96,6 @@ sub __gen_table {
     }
 
     # reorder each row according to requested column order
-    my @map;
     if ($column_orders) {
         # 0->2, 1->0, ... (map column position from unordered to ordered)
         my @map0 = sort {
@@ -105,28 +104,32 @@ sub __gen_table {
             my $idx_b = firstidx(sub {$_ eq $b->[1]},
                                  @$column_orders) // 9999;
             $idx_a <=> $idx_b || $a->[1] cmp $b->[1];
-        } map {[$_, $columns[$_]]} 0..@columns-1;
+        } map {[$_, $columns[$_]]} 0..$#columns;
         #use DD; dd \@map0;
-        for (0..@map0-1) {
+        my @map;
+        for (0..$#map0) {
             $map[$_] = $map0[$_][0];
         }
         #use DD; dd \@map;
         my $newdata = [];
         for my $row (@$data) {
             my @newrow;
-            for (0..@map-1) { $newrow[$_] = $row->[$map[$_]] }
+            for (0..$#map) { $newrow[$_] = $row->[$map[$_]] }
             push @$newdata, \@newrow;
         }
         $data = $newdata;
-    } else {
-        @map = 0..$#columns;
     }
 
-    if ($header_row && (my $tfu = $resmeta->{'table.field_units'}) && @$data) {
-        for (0..$#map) {
-            if (defined $tfu->[$_]) {
-                $data->[0][$_] .= " ($tfu->[$_])";
-            }
+    # add field units as label (" (UNIT)")
+    {
+        last unless $header_row && @$data;
+        my $tff = $resmeta->{'table.fields'} or last;
+        my $tfu = $resmeta->{'table.field_units'} or last;
+        for my $i (0..$#{$data->[0]}) {
+            my $field_idx = firstidx { $_ eq $data->[0][$i] } @$tff;
+            next unless $field_idx;
+            next unless defined $tfu->[$field_idx];
+            $data->[0][$i] .= " ($tfu->[$field_idx])";
         }
     }
 
