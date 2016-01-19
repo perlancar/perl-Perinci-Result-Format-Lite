@@ -96,6 +96,7 @@ sub __gen_table {
     }
 
     # reorder each row according to requested column order
+    my @map;
     if ($column_orders) {
         # 0->2, 1->0, ... (map column position from unordered to ordered)
         my @map0 = sort {
@@ -106,7 +107,6 @@ sub __gen_table {
             $idx_a <=> $idx_b || $a->[1] cmp $b->[1];
         } map {[$_, $columns[$_]]} 0..@columns-1;
         #use DD; dd \@map0;
-        my @map;
         for (0..@map0-1) {
             $map[$_] = $map0[$_][0];
         }
@@ -118,6 +118,16 @@ sub __gen_table {
             push @$newdata, \@newrow;
         }
         $data = $newdata;
+    } else {
+        @map = 0..$#columns;
+    }
+
+    if ($header_row && (my $tfu = $resmeta->{'table.field_units'}) && @$data) {
+        for (0..$#map) {
+            if (defined $tfu->[$_]) {
+                $data->[0][$_] .= " ($tfu->[$_])";
+            }
+        }
     }
 
     if ($format eq 'text-pretty') {
