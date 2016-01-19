@@ -100,9 +100,9 @@ sub __gen_table {
         # 0->2, 1->0, ... (map column position from unordered to ordered)
         my @map0 = sort {
             my $idx_a = firstidx(sub {$_ eq $a->[1]},
-                                                  @$column_orders) // 9999;
+                                 @$column_orders) // 9999;
             my $idx_b = firstidx(sub {$_ eq $b->[1]},
-                                                  @$column_orders) // 9999;
+                                 @$column_orders) // 9999;
             $idx_a <=> $idx_b || $a->[1] cmp $b->[1];
         } map {[$_, $columns[$_]]} 0..@columns-1;
         #use DD; dd \@map0;
