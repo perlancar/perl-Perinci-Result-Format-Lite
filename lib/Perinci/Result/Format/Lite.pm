@@ -28,9 +28,9 @@ sub firstidx (&@) {
 
 sub _json {
     state $json = do {
-        if    (eval { require Cpanel::JSON::XS; 1 })   { Cpanel::JSON::XS->new->canonical(1)->allow_nonref }
+        if    (eval { require Cpanel::JSON::XS; 1 })   { Cpanel::JSON::XS->new->canonical(1)->convert_blessed->allow_nonref }
         elsif (eval { require JSON::Tiny::Subclassable; 1 }) { JSON::Tiny::Subclassable->new }
-        elsif (eval { require JSON::PP; 1 })   { JSON::PP->new->canonical(1)->allow_nonref }
+        elsif (eval { require JSON::PP; 1 })   { JSON::PP->new->canonical(1)->convert_blessed->allow_nonref }
         else { die "Can't find any JSON module" }
     };
     $json;
