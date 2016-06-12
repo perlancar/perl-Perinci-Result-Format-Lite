@@ -11,7 +11,7 @@ my $fmt = \&Perinci::Result::Format::Lite::format;
 
 like($fmt->([200, "OK", {}], 'foo'), qr/\{\}/, "unknown format -> fallback to json-pretty");
 
-subtest "text-simple" => sub {
+subtest "format=text-simple" => sub {
     is($fmt->([200, "OK"], 'text-simple'), "");
     is($fmt->([200, "OK", "a"], 'text-simple'), "a\n", "newline appended");
     is($fmt->([200, "OK", "a\n"], 'text-simple'), "a\n", "newline already exists so not added");
@@ -24,7 +24,7 @@ subtest "text-simple" => sub {
     # XXX test: table_column_orders
 };
 
-subtest "text-pretty" => sub {
+subtest "format=text-pretty" => sub {
     like($fmt->([200, "OK", {a=>1}], 'text-pretty'), qr/key[ ]*\|[ ]*value.+a[ ]*\|[ ]*1/s, "hash");
 
     # XXX test: aos -> table
@@ -33,7 +33,7 @@ subtest "text-pretty" => sub {
     # XXX test: table_column_orders
 };
 
-subtest "json-pretty" => sub {
+subtest "format=json-pretty" => sub {
     like($fmt->([200, "OK", [1,2]], 'json-pretty'),
          qr/\[\s*
             200,\s*
@@ -45,5 +45,43 @@ subtest "json-pretty" => sub {
 
 # XXX test: opt:naked=1
 # XXX test: opt:cleanse=0
+
+subtest "meta:table.fields" => sub {
+    like($fmt->(
+        [200,
+         "OK",
+         [{a=>1}, {b=>2},{c=>3}],
+         {
+             'table.fields'=>[qw/a b c/],
+         },],
+        "text-pretty"),
+         qr/^\| \s* a \s* \| \s* b \s* \| \s* c \s* \|$/mx);
+};
+
+subtest "meta:table.fields" => sub {
+    like($fmt->(
+        [200,
+         "OK",
+         [{a=>1, e=>5}, {b=>2, f=>6}, {c=>3, d=>4}],
+         {
+             'table.fields'=>[qw/a b f/],
+             'table.hide_unknown_fields'=>[qw/a b f/],
+         },],
+        "text-pretty"),
+         qr/^\| \s* a \s* \| \s* b \s* \| \s* f \s* \|$/mx);
+};
+
+subtest "meta:table.field_units" => sub {
+    like($fmt->(
+        [200,
+         "OK",
+         [{a=>1}, {b=>2},{c=>3}],
+         {
+             'table.fields'=>[qw/a b c/],
+             'table.field_units'=>[qw/u1 u2 u3/],
+         },],
+        "text-pretty"),
+         qr/^\| \s* a \s\(u1\) \s* \| \s* b \s\(u2\) \s* \| \s* c \s\(u3\) \s* \|$/mx);
+};
 
 done_testing();

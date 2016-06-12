@@ -127,7 +127,7 @@ sub __gen_table {
         my $tfu = $resmeta->{'table.field_units'} or last;
         for my $i (0..$#{$data->[0]}) {
             my $field_idx = firstidx { $_ eq $data->[0][$i] } @$tff;
-            next unless $field_idx;
+            next unless defined $field_idx;
             next unless defined $tfu->[$field_idx];
             $data->[0][$i] .= " ($tfu->[$field_idx])";
         }
