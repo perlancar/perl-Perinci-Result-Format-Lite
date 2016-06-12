@@ -133,6 +133,42 @@ sub __gen_table {
         }
     }
 
+    # format cells
+    {
+        my $tff   = $resmeta->{'table.fields'} or last;
+        my $tffmt = $resmeta->{'table.field_formats'} or last;
+
+        # load required modules
+        for my $ffmt (@$tffmt) {
+            if ($ffmt eq 'iso8601') {
+                #require Time::Local;
+            }
+        }
+
+        for my $i (0..$#{$data}) {
+            my $row = $data->[$i];
+            for my $j (0..$#{$row}) {
+                next unless defined $row->[$j];
+                my $ffmt = $tffmt->[$j];
+                next unless $ffmt;
+                if ($ffmt eq 'iso8601_datetime' || $ffmt eq 'iso8601_date') {
+                    if ($row->[$j] =~ /\A[0-9]+\z/) {
+                        my @t = gmtime($row->[$j]);
+                        if ($ffmt eq 'iso8601_datetime') {
+                            $row->[$j] = sprintf(
+                                "%04d-%02d-%02dT%02d:%02d:%02dZ",
+                                $t[5]+1900, $t[4]+1, $t[3], $t[2], $t[1], $t[0]);
+                        } else {
+                            $row->[$j] = sprintf(
+                                "%04d-%02d-%02d",
+                                $t[5]+1900, $t[4]+1, $t[3]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     if ($format eq 'text-pretty') {
         require Text::Table::Tiny;
         Text::Table::Tiny::table(rows=>$data, header_row=>$header_row) . "\n";

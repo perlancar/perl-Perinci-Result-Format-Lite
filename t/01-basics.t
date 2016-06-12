@@ -84,4 +84,21 @@ subtest "meta:table.field_units" => sub {
          qr/^\| \s* a \s\(u1\) \s* \| \s* b \s\(u2\) \s* \| \s* c \s\(u3\) \s* \|$/mx);
 };
 
+subtest "meta:table.field_formats" => sub {
+    like($fmt->(
+        [200,
+         "OK",
+         [
+             {idx=>1, time=>1465744527, date=>1465744527},
+             # XXX time=DateTime instance
+             # XXX time=Time::Moment instance
+         ],
+         {
+             'table.fields'=>[qw/idx time date/],
+             'table.field_formats'=>[undef, qw/iso8601_datetime iso8601_date/],
+         },],
+        "text-pretty"),
+         qr/^\| \s* 1 \s* \| \s* 2016-06-12T15:15:27Z \s* \| \s* 2016-06-12 \s* \|$/mx);
+};
+
 done_testing();
