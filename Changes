@@ -1,5 +1,12 @@
 Revision history for Perinci-Result-Format-Lite
 
+0.15    2016-06-12 (PERLANCAR)
+
+	- Observe result metadata: table.field_formats.
+
+	- Add tests, bugfix (first field unit was not shown).
+
+
 0.14    2016-04-08 (PERLANCAR)
 
 	- Handle encoding objects.
