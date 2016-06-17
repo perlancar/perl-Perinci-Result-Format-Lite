@@ -101,4 +101,33 @@ subtest "meta:table.field_formats" => sub {
          qr/^\| \s* 1 \s* \| \s* 2016-06-12T15:15:27Z \s* \| \s* 2016-06-12 \s* \|$/mx);
 };
 
+subtest "meta:table.field_aligns" => sub {
+    is($fmt->(
+        [200,
+         "OK",
+         [
+             {left=>"x"   , right=>"x"   , middle=>"x"   , number1=>"1"   , number2=>"1"   , number3=>"1e2"},
+             {left=>"xx"  , right=>"xx"  , middle=>"xx"  , number1=>"-10" , number2=>"-10" , number3=>"1.2e-1"},
+             {left=>"xxx" , right=>"xxx" , middle=>"xxx" , number1=>"100" , number2=>"1.2" , number3=>"1.23e3"},
+             {left=>"xxxx", right=>"xxxx", middle=>"xxxx", number1=>"1000", number2=>"1.23", number3=>"12.34e3"},
+         ],
+         {
+             'table.fields'      =>[qw/left right middle number1 number2 number3/],
+             'table.field_aligns'=>[qw/left right middle number  number  number/],
+         },],
+        "text-pretty"),
+       join(
+           "",
+           "+------+-------+--------+---------+---------+----------+\n",
+           "| left | right | middle | number1 | number2 | number3  |\n",
+           "+------+-------+--------+---------+---------+----------+\n",
+           "|    x | x     |   x    |       1 |   1     |     1e2  |\n",
+           "|   xx | xx    |   xx   |     -10 | -10     |   1.2e-1 |\n",
+           "|  xxx | xxx   |  xxx   |     100 |   1.2   |  1.23e3  |\n",
+           "| xxxx | xxxx  |  xxxx  |    1000 |   1.23  | 12.34e3  |\n",
+           "+------+-------+--------+---------+---------+----------+\n",
+       ),
+   );
+};
+
 done_testing();

@@ -9,7 +9,7 @@ use strict;
 use warnings;
 #END IFUNBUILT
 
-use List::Util qw(first);
+use List::Util qw(first max);
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -140,6 +140,7 @@ sub __gen_table {
 
         # load required modules
         for my $ffmt (@$tffmt) {
+            next unless $ffmt;
             if ($ffmt eq 'iso8601') {
                 #require Time::Local;
             }
@@ -177,6 +178,113 @@ sub __gen_table {
     }
 
     if ($format eq 'text-pretty') {
+        # align columns
+        {
+            no warnings 'uninitialized';
+            my $tfa = $resmeta->{'table.field_aligns'} or last;
+            last unless @$data;
+
+            for my $col (0..$#{$tfa}) {
+                my $align = $tfa->[$col];
+                next unless $align;
+
+                # determine max widths
+                my $maxw;
+                my ($maxw_bd, $maxw_d, $maxw_ad); # before digit, digit, after d
+                if ($align eq 'number') {
+                    my (@w_bd, @w_d, @w_ad);
+                    for my $i (0..$#{$data}) {
+                        my $row = $data->[$i];
+                        if (@$row > $col) {
+                            my $cell = $row->[$col];
+                            if ($header_row && $i == 0) {
+                                my $w = length($cell);
+                                push @w_bd, 0;
+                                push @w_bd, 0;
+                                push @w_ad, 0;
+                            } elsif ($cell =~ /\A([+-]?\d+)(\.?)(\d*)\z/) {
+                                # decimal notation number
+                                push @w_bd, length($1);
+                                push @w_d , length($2);
+                                push @w_ad, length($3);
+                            } elsif ($cell =~ /\A([+-]?\d+\.?\d*)([eE])([+-]?\d+)\z/) {
+                                # scientific notation number
+                                push @w_bd, length($1);
+                                push @w_d , length($2);
+                                push @w_ad, length($3);
+                            } else {
+                                # not a number
+                                push @w_bd, length($cell);
+                                push @w_bd, 0;
+                                push @w_ad, 0;
+                            }
+                        } else {
+                            push @w_bd, 0;
+                            push @w_d , 0;
+                            push @w_ad, 0;
+                        }
+                    }
+                    $maxw_bd = max(@w_bd);
+                    $maxw_d  = max(@w_d);
+                    $maxw_ad = max(@w_ad);
+                    if ($header_row) {
+                        my $w = length($data->[0][$col]);
+                        if ($maxw_d == 0 && $maxw_ad == 0) {
+                            $maxw_bd = $w;
+                        }
+                    }
+                    #say "D:maxw_bd=<$maxw_bd> maxw_d=<$maxw_d> maxw_ad=<$maxw_ad>";
+                } else {
+                    $maxw = max(map {
+                        @$_ > $col ? length($_->[$col]) : 0
+                    } @$data);
+                }
+
+                # do the alignment
+                for my $i (0..$#{$data}) {
+                    my $row = $data->[$i];
+                    for my $i (0..$#{$data}) {
+                        my $row = $data->[$i];
+                        next unless @$row > $col;
+                        my $cell = $row->[$col];
+                        next unless defined($cell);
+                        if ($align eq 'number') {
+                            my ($bd, $d, $ad);
+                            if ($header_row && $i == 0) {
+                            } elsif (($bd, $d, $ad) = $cell =~ /\A([+-]?\d+)(\.?)(\d*)\z/) {
+                                $cell = join(
+                                    '',
+                                    (' ' x ($maxw_bd - length($bd))), $bd,
+                                    $d , (' ' x ($maxw_d  - length($d ))),
+                                    $ad, (' ' x ($maxw_ad - length($ad))),
+                                );
+                            } elsif (($bd, $d, $ad) = $cell =~ /\A([+-]?\d+\.?\d*)([eE])([+-]?\d+)\z/) {
+                                $cell = join(
+                                    '',
+                                    (' ' x ($maxw_bd - length($bd))), $bd,
+                                    $d , (' ' x ($maxw_d  - length($d ))),
+                                    $ad, (' ' x ($maxw_ad - length($ad))),
+                                );
+                            } else {
+                                $cell .= (' ' x ($maxw_bd+$maxw_d+$maxw_ad - length($cell)));
+                            }
+                        } elsif ($align eq 'right') {
+                            $cell .= (' ' x ($maxw - length($cell)));
+                        } elsif ($align eq 'middle' || $align eq 'center') {
+                            my $w = length($cell);
+                            my $n = int(($maxw-$w)/2);
+                            $cell = (' ' x $n) . $cell . (' ' x ($maxw-$w-$n));
+                        } else {
+                            # assumed left
+                            $cell = (' ' x ($maxw - length($cell))) . $cell;
+
+                        }
+                        $row->[$col] = $cell;
+                    }
+                }
+            } # for $col
+        } # END align columns
+
         require Text::Table::Tiny;
         Text::Table::Tiny::table(rows=>$data, header_row=>$header_row) . "\n";
     } elsif ($format eq 'csv') {
