@@ -120,7 +120,7 @@ sub __gen_table {
         $data = $newdata;
     }
 
-    # add field units as label (" (UNIT)")
+    # add field units as label suffix to header (" (UNIT)")
     {
         last unless $header_row && @$data;
         my $tff = $resmeta->{'table.fields'} or last;
