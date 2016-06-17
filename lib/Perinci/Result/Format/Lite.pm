@@ -269,14 +269,14 @@ sub __gen_table {
                                 $cell .= (' ' x ($maxw_bd+$maxw_d+$maxw_ad - length($cell)));
                             }
                         } elsif ($align eq 'right') {
-                            $cell .= (' ' x ($maxw - length($cell)));
+                            $cell = (' ' x ($maxw - length($cell))) . $cell;
                         } elsif ($align eq 'middle' || $align eq 'center') {
                             my $w = length($cell);
                             my $n = int(($maxw-$w)/2);
                             $cell = (' ' x $n) . $cell . (' ' x ($maxw-$w-$n));
                         } else {
                             # assumed left
-                            $cell = (' ' x ($maxw - length($cell))) . $cell;
+                            $cell .= (' ' x ($maxw - length($cell)));
 
                         }
                         $row->[$col] = $cell;
