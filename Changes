@@ -1,5 +1,13 @@
 Revision history for Perinci-Result-Format-Lite
 
+0.17    2016-06-17 (PERLANCAR)
+
+	- Tweak 'number' field alignment (right align again after doing
+	  number alignment).
+
+	- [Bugfix] Woops, mixed up between left alignment and right.
+
+
 0.16    2016-06-17 (PERLANCAR) (unreleased)
 
         - Recognize field formats: boolstr, sci2dec.
