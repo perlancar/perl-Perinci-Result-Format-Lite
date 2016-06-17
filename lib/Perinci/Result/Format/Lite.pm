@@ -233,12 +233,11 @@ sub __gen_table {
                             $maxw_bd = $w;
                         }
                     }
-                    #say "D:maxw_bd=<$maxw_bd> maxw_d=<$maxw_d> maxw_ad=<$maxw_ad>";
-                } else {
-                    $maxw = max(map {
-                        @$_ > $col ? length($_->[$col]) : 0
-                    } @$data);
                 }
+
+                $maxw = max(map {
+                    @$_ > $col ? length($_->[$col]) : 0
+                } @$data);
 
                 # do the alignment
                 for my $i (0..$#{$data}) {
@@ -265,9 +264,10 @@ sub __gen_table {
                                     $d , (' ' x ($maxw_d  - length($d ))),
                                     $ad, (' ' x ($maxw_ad - length($ad))),
                                 );
-                            } else {
-                                $cell .= (' ' x ($maxw_bd+$maxw_d+$maxw_ad - length($cell)));
                             }
+                            my $w = length($cell);
+                            $cell = (' ' x ($maxw - $w)) . $cell
+                                if $maxw > $w;
                         } elsif ($align eq 'right') {
                             $cell = (' ' x ($maxw - length($cell))) . $cell;
                         } elsif ($align eq 'middle' || $align eq 'center') {
