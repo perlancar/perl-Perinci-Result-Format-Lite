@@ -164,6 +164,13 @@ sub __gen_table {
                                 $t[5]+1900, $t[4]+1, $t[3]);
                         }
                     }
+                } elsif ($ffmt eq 'boolstr') {
+                    $row->[$j] = $row->[$j] ? "yes" : "no";
+                } elsif ($ffmt eq 'sci2dec') {
+                    if ($row->[$j] =~ /\A(?:[+-]?)(?:\d+\.|\d*\.(\d+))[eE]([+-]?\d+)\z/) {
+                        my $n = length($1 || "") - $2; $n = 0 if $n < 0;
+                        $row->[$j] = sprintf("%.${n}f", $row->[$j]);
+                    }
                 }
             }
         }
