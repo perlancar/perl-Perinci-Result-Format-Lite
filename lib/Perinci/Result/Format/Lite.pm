@@ -118,6 +118,17 @@ sub __gen_table {
             push @$newdata, \@newrow;
         }
         $data = $newdata;
+        my @newcolumns;
+        for (@map) { push @newcolumns, $columns[$_] }
+        @columns = @newcolumns;
+    }
+
+    my @field_idxs; # map column to index in table.fields
+    {
+        my $tff = $resmeta->{'table.fields'} or last;
+        for my $i (0..$#columns) {
+            $field_idxs[$i] = firstidx { $_ eq $columns[$i] } @$tff;
+        }
     }
 
     # add field units as label suffix to header (" (UNIT)")
@@ -125,9 +136,9 @@ sub __gen_table {
         last unless $header_row && @$data;
         my $tff = $resmeta->{'table.fields'} or last;
         my $tfu = $resmeta->{'table.field_units'} or last;
-        for my $i (0..$#{$data->[0]}) {
-            my $field_idx = firstidx { $_ eq $data->[0][$i] } @$tff;
-            next unless defined $field_idx;
+        for my $i (0..$#columns) {
+            my $field_idx = $field_idxs[$i];
+            next unless $field_idx >= 0;
             next unless defined $tfu->[$field_idx];
             $data->[0][$i] .= " ($tfu->[$field_idx])";
         }
@@ -148,9 +159,11 @@ sub __gen_table {
 
         for my $i (0..$#{$data}) {
             my $row = $data->[$i];
-            for my $j (0..$#{$row}) {
+            for my $j (0..$#columns) {
                 next unless defined $row->[$j];
-                my $ffmt = $tffmt->[$j];
+                my $field_idx = $field_idxs[$j];
+                next unless $field_idx >= 0;
+                my $ffmt = $tffmt->[$field_idx];
                 next unless $ffmt;
                 if ($ffmt eq 'iso8601_datetime' || $ffmt eq 'iso8601_date') {
                     if ($row->[$j] =~ /\A[0-9]+\z/) {
@@ -184,8 +197,10 @@ sub __gen_table {
             my $tfa = $resmeta->{'table.field_aligns'} or last;
             last unless @$data;
 
-            for my $col (0..$#{$tfa}) {
-                my $align = $tfa->[$col];
+            for my $colidx (0..$#columns) {
+                my $field_idx = $field_idxs[$colidx];
+                next unless $field_idx >= 0;
+                my $align = $tfa->[$field_idx];
                 next unless $align;
 
                 # determine max widths
@@ -195,8 +210,8 @@ sub __gen_table {
                     my (@w_bd, @w_d, @w_ad);
                     for my $i (0..$#{$data}) {
                         my $row = $data->[$i];
-                        if (@$row > $col) {
-                            my $cell = $row->[$col];
+                        if (@$row > $colidx) {
+                            my $cell = $row->[$colidx];
                             if ($header_row && $i == 0) {
                                 my $w = length($cell);
                                 push @w_bd, 0;
@@ -228,7 +243,7 @@ sub __gen_table {
                     $maxw_d  = max(@w_d);
                     $maxw_ad = max(@w_ad);
                     if ($header_row) {
-                        my $w = length($data->[0][$col]);
+                        my $w = length($data->[0][$colidx]);
                         if ($maxw_d == 0 && $maxw_ad == 0) {
                             $maxw_bd = $w;
                         }
@@ -236,7 +251,7 @@ sub __gen_table {
                 }
 
                 $maxw = max(map {
-                    @$_ > $col ? length($_->[$col]) : 0
+                    @$_ > $colidx ? length($_->[$colidx]) : 0
                 } @$data);
 
                 # do the alignment
@@ -244,8 +259,8 @@ sub __gen_table {
                     my $row = $data->[$i];
                     for my $i (0..$#{$data}) {
                         my $row = $data->[$i];
-                        next unless @$row > $col;
-                        my $cell = $row->[$col];
+                        next unless @$row > $colidx;
+                        my $cell = $row->[$colidx];
                         next unless defined($cell);
                         if ($align eq 'number') {
                             my ($bd, $d, $ad);
@@ -279,10 +294,10 @@ sub __gen_table {
                             $cell .= (' ' x ($maxw - length($cell)));
 
                         }
-                        $row->[$col] = $cell;
+                        $row->[$colidx] = $cell;
                     }
                 }
-            } # for $col
+            } # for $colidx
         } # END align columns
 
         require Text::Table::Tiny;
