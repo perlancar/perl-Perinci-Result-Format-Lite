@@ -11,8 +11,7 @@ use warnings;
 
 use List::Util qw(first max);
 
-require Exporter;
-our @ISA = qw(Exporter);
+use Exporter qw(import);
 our @EXPORT_OK = qw(format);
 
 # copy-pasted from List::MoreUtils::PP
@@ -317,6 +316,38 @@ sub __gen_table {
                     } @$row)."\n";
             } @$data
         );
+    } elsif ($format eq 'html') {
+        no warnings 'uninitialized';
+        require HTML::Entities;
+
+        my $tfa = $resmeta->{'table.field_aligns'};
+
+        my @res;
+        push @res, "<table".($resmeta->{'table.html_class'} ?
+                                 "class=\"".HTML::Entities::encode_entities(
+                                     $resmeta->{'table.html_class'})."\"" : "").
+                                         ">\n";
+        for my $i (0..$#{$data}) {
+            my $data_elem = $i == 0 ? "th" : "td";
+            push @res, " <tr>\n";
+            my $row = $data->[$i];
+            for my $j (0..$#{$row}) {
+                my $field_idx = $field_idxs[$j];
+                my $align;
+                if ($field_idx >= 0 && $tfa->[$field_idx]) {
+                    $align = $tfa->[$field_idx];
+                    $align = "right" if $align eq 'number';
+                    $align = "middle" if $align eq 'center';
+                }
+                push @res, "  <$data_elem",
+                    ($align ? " align=\"$align\"" : ""),
+                    ">", HTML::Entities::encode_entities($row->[$j]),
+                    "</$data_elem>\n";
+            }
+            push @res, " </tr>\n";
+        }
+        push @res, "</table>\n";
+        join '', @res;
     } else {
         no warnings 'uninitialized';
         shift @$data if $header_row;
@@ -327,7 +358,7 @@ sub __gen_table {
 sub format {
     my ($res, $format, $is_naked, $cleanse) = @_;
 
-    if ($format =~ /\A(text|text-simple|text-pretty|csv)\z/) {
+    if ($format =~ /\A(text|text-simple|text-pretty|csv|html)\z/) {
         $format = $format eq 'text' ?
             ((-t STDOUT) ? 'text-pretty' : 'text-simple') : $format;
         no warnings 'uninitialized';
