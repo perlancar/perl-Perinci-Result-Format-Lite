@@ -324,7 +324,7 @@ sub __gen_table {
 
         my @res;
         push @res, "<table".($resmeta->{'table.html_class'} ?
-                                 "class=\"".HTML::Entities::encode_entities(
+                                 " class=\"".HTML::Entities::encode_entities(
                                      $resmeta->{'table.html_class'})."\"" : "").
                                          ">\n";
         for my $i (0..$#{$data}) {
