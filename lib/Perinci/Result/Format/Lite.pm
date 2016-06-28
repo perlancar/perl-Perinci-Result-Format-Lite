@@ -329,6 +329,8 @@ sub __gen_table {
                                          ">\n";
         for my $i (0..$#{$data}) {
             my $data_elem = $i == 0 ? "th" : "td";
+            push @res, "<thead>\n" if $i == 0;
+            push @res, "<tbody>\n" if $i == 1;
             push @res, " <tr>\n";
             my $row = $data->[$i];
             for my $j (0..$#{$row}) {
@@ -345,6 +347,8 @@ sub __gen_table {
                     "</$data_elem>\n";
             }
             push @res, " </tr>\n";
+            push @res, "</thead>\n" if $i == 0;
+            push @res, "</tbody>\n" if $i == 1;
         }
         push @res, "</table>\n";
         join '', @res;
