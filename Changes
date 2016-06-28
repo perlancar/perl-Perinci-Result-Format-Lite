@@ -1,5 +1,12 @@
 Revision history for Perinci-Result-Format-Lite
 
+0.20    2016-06-28 (PERLANCAR)
+
+	- [Bugfix] Missed a whitespace.
+
+	- html: Generate <thead> and <tbody> elements.
+
+
 0.19    2016-06-28 (PERLANCAR)
 
 	- Support html output format.
