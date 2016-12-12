@@ -299,8 +299,16 @@ sub __gen_table {
             } # for $colidx
         } # END align columns
 
-        require Text::Table::Tiny;
-        Text::Table::Tiny::table(rows=>$data, header_row=>$header_row) . "\n";
+        my $fres;
+        if (my $backend = $ENV{FORMAT_PRETTY_TABLE_BACKEND}) {
+            require Text::Table::Any;
+            $fres = Text::Table::Any::table(rows=>$data, header_row=>$header_row, backend=>$backend);
+        } else {
+            require Text::Table::Tiny;
+            $fres = Text::Table::Tiny::table(rows=>$data, header_row=>$header_row);
+        }
+        $fres .= "\n" unless $fres =~ /\R\z/ || !length($fres);
+        $fres;
     } elsif ($format eq 'csv') {
         no warnings 'uninitialized';
         join(
@@ -458,6 +466,16 @@ sub format {
 
 
 =head1 ENVIRONMENT
+
+=head2 FORMAT_PRETTY_TABLE_BACKEND => str
+
+If this is set, will render text table using L<Text::Table::Any> (with
+C<backend> set to the value of this environment variable) instead of the default
+L<Text::Table::Tiny>. This is useful if you want to output text table in a
+different format, for example to generate Org tables (make sure
+L<Text::Table::Org> backend is already installed):
+
+ % FORMAT_PRETTY_TABLE_BACKEND=Text::Table::Org lcpan rdeps Getopt::Lucid
 
 =head2 FORMAT_PRETTY_TABLE_COLUMN_ORDERS => array (json)
 
