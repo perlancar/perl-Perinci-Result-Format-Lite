@@ -1,5 +1,11 @@
 Revision history for Perinci-Result-Format-Lite
 
+0.21    2016-12-12 (PERLANCAR)
+
+	- Observe FORMAT_PRETTY_TABLE_BACKEND to allow producing text
+	  tables of various formats using Text::Table::Any.
+
+
 0.20    2016-06-28 (PERLANCAR)
 
 	- [Bugfix] Missed a whitespace.
