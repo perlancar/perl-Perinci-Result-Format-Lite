@@ -455,8 +455,8 @@ sub format {
     $main::fatpacked{"Data/Check/Structure.pm"} = '##line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'DATA_CHECK_STRUCTURE';
 #package Data::Check::Structure;
 #
-#our $DATE = '2014-07-14';
-#our $VERSION = '0.03';
+#our $DATE = '2014-07-14'; 
+#our $VERSION = '0.03'; 
 #
 #use 5.010001;
 #use strict;
@@ -623,8 +623,8 @@ DATA_CHECK_STRUCTURE
     $main::fatpacked{"Text/Table/Any.pm"} = '##line '.(1+__LINE__).' "'.__FILE__."\"\n".<<'TEXT_TABLE_ANY';
 #package Text::Table::Any;
 #
-#our $DATE = '2016-10-19';
-#our $VERSION = '0.05';
+#our $DATE = '2016-12-29'; 
+#our $VERSION = '0.06'; 
 #
 #
 #sub _encode {
@@ -664,6 +664,14 @@ DATA_CHECK_STRUCTURE
 #        require Text::Table::CSV;
 #        return Text::Table::CSV::table(
 #            rows => $rows);
+#    } elsif ($backend eq 'Text::Table::HTML') {
+#        require Text::Table::HTML;
+#        return Text::Table::HTML::table(
+#            rows => $rows, header_row => $header_row);
+#    } elsif ($backend eq 'Text::Table::HTML::DataTables') {
+#        require Text::Table::HTML::DataTables;
+#        return Text::Table::HTML::DataTables::table(
+#            rows => $rows, header_row => $header_row);
 #    } elsif ($backend eq 'Text::ANSITable') {
 #        require Text::ANSITable;
 #        my $t = Text::ANSITable->new(
@@ -771,7 +779,7 @@ TEXT_TABLE_ANY
 #        my $header_row = $rows->[0];
 #        $data_begins++;
 #        push @table, sprintf(
-#                         $format,
+#                         $format, 
 #                         map { defined($header_row->[$_]) ? $header_row->[$_] : '' } (0..$max_index)
 #                     );
 #        push @table, $params{separate_rows} ? $head_row_sep : $row_sep;
@@ -779,7 +787,7 @@ TEXT_TABLE_ANY
 #
 #    foreach my $row ( @{ $rows }[$data_begins..$#$rows] ) {
 #        push @table, sprintf(
-#	    $format,
+#	    $format, 
 #	    map { defined($row->[$_]) ? $row->[$_] : '' } (0..$max_index)
 #	);
 #        push @table, $row_sep if $params{separate_rows};
