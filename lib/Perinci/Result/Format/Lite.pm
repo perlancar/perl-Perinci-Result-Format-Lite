@@ -356,8 +356,8 @@ sub __gen_table {
             }
             push @res, " </tr>\n";
             push @res, "</thead>\n" if $i == 0;
-            push @res, "</tbody>\n" if $i == 1;
         }
+        push @res, "</tbody>\n";
         push @res, "</table>\n";
         join '', @res;
     } else {
