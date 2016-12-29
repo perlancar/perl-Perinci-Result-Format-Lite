@@ -1,5 +1,13 @@
 Revision history for Perinci-Result-Format-Lite
 
+0.22    2016-12-29 (PERLANCAR)
+
+        - [Bugfix] Fix HTML output (</tbody> was too early).
+
+        - [experimental] Embed Data::Check::Structure, Text::Table::Any,
+          Text::Table::Tiny.
+
+
 0.21    2016-12-12 (PERLANCAR)
 
 	- Observe FORMAT_PRETTY_TABLE_BACKEND to allow producing text
