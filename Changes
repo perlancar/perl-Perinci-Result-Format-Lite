@@ -1,5 +1,3 @@
-Revision history for Perinci-Result-Format-Lite
-
 0.22    2016-12-29 (PERLANCAR)
 
         - [Bugfix] Fix HTML output (</tbody> was too early).
