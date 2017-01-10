@@ -1,3 +1,10 @@
+0.23    2017-01-10 (PERLANCAR)
+
+	- Remove embedding of Data::Check::Structure, Text::Table::Any,
+	  Text::Table::Tiny (I don't feel embedding is elegant or worth the
+	  hassle, we should fatpack/datapack only the scripts).
+
+
 0.22    2016-12-29 (PERLANCAR)
 
         - [Bugfix] Fix HTML output (</tbody> was too early).
