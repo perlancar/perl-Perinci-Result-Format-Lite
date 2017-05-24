@@ -148,11 +148,14 @@ sub __gen_table {
         my $tff   = $resmeta->{'table.fields'} or last;
         my $tffmt = $resmeta->{'table.field_formats'} or last;
 
-        # load required modules
-        for my $ffmt (@$tffmt) {
-            next unless $ffmt;
-            if ($ffmt eq 'iso8601') {
-                #require Time::Local;
+        my (@fmt_names, @fmt_opts);
+        for my $i (0..$#{$tffmt}) {
+            if (ref($tffmt->[$i]) eq 'ARRAY') {
+                $fmt_names[$i] = $tffmt->[$i][0];
+                $fmt_opts [$i] = $tffmt->[$i][1] // {};
+            } else {
+                $fmt_names[$i] = $tffmt;
+                $fmt_opts [$i] = {};
             }
         }
 
@@ -162,12 +165,13 @@ sub __gen_table {
                 next unless defined $row->[$j];
                 my $field_idx = $field_idxs[$j];
                 next unless $field_idx >= 0;
-                my $ffmt = $tffmt->[$field_idx];
-                next unless $ffmt;
-                if ($ffmt eq 'iso8601_datetime' || $ffmt eq 'iso8601_date') {
+                my $fmt_name = $fmt_names[$j];
+                next unless $fmt_name;
+                my $fmt_opts = $fmt_opts [$j];
+                if ($fmt_name eq 'iso8601_datetime' || $fmt_name eq 'iso8601_date') {
                     if ($row->[$j] =~ /\A[0-9]+\z/) {
                         my @t = gmtime($row->[$j]);
-                        if ($ffmt eq 'iso8601_datetime') {
+                        if ($fmt_name eq 'iso8601_datetime') {
                             $row->[$j] = sprintf(
                                 "%04d-%02d-%02dT%02d:%02d:%02dZ",
                                 $t[5]+1900, $t[4]+1, $t[3], $t[2], $t[1], $t[0]);
@@ -177,13 +181,16 @@ sub __gen_table {
                                 $t[5]+1900, $t[4]+1, $t[3]);
                         }
                     }
-                } elsif ($ffmt eq 'boolstr') {
+                } elsif ($fmt_name eq 'boolstr') {
                     $row->[$j] = $row->[$j] ? "yes" : "no";
-                } elsif ($ffmt eq 'sci2dec') {
+                } elsif ($fmt_name eq 'sci2dec') {
                     if ($row->[$j] =~ /\A(?:[+-]?)(?:\d+\.|\d*\.(\d+))[eE]([+-]?\d+)\z/) {
                         my $n = length($1 || "") - $2; $n = 0 if $n < 0;
                         $row->[$j] = sprintf("%.${n}f", $row->[$j]);
                     }
+                } elsif ($fmt_name eq 'percent') {
+                    my $fmt = $fmt_opts->{sprintf} // '%.2f%%';
+                    $row->[$j] = sprintf($fmt, $row->[$j] * 100);
                 }
             }
         }
