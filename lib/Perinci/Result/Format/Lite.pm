@@ -56,6 +56,7 @@ sub __gen_table {
 
     $resmeta //= {};
 
+    # column names
     my @columns;
     if ($header_row) {
         @columns = @{$data->[0]};
@@ -148,24 +149,30 @@ sub __gen_table {
         my $tff   = $resmeta->{'table.fields'} or last;
         my $tffmt = $resmeta->{'table.field_formats'} or last;
 
-        my (@fmt_names, @fmt_opts);
-        for my $i (0..$#{$tffmt}) {
-            if (ref($tffmt->[$i]) eq 'ARRAY') {
-                $fmt_names[$i] = $tffmt->[$i][0];
-                $fmt_opts [$i] = $tffmt->[$i][1] // {};
+        my (@fmt_names, @fmt_opts); # index: column indexes
+        for my $i (0..$#columns) {
+            my $field_idx = $field_idxs[$i];
+            next unless $field_idx >= 0;
+            next unless defined $tffmt->[$field_idx];
+            if (ref($tffmt->[$field_idx]) eq 'ARRAY') {
+                $fmt_names[$i] = $tffmt->[$field_idx][0];
+                $fmt_opts [$i] = $tffmt->[$field_idx][1] // {};
             } else {
-                $fmt_names[$i] = $tffmt;
+                $fmt_names[$i] = $tffmt->[$field_idx];
                 $fmt_opts [$i] = {};
             }
         }
 
         for my $i (0..$#{$data}) {
+            next if $i==0 && $header_row;
             my $row = $data->[$i];
             for my $j (0..$#columns) {
                 next unless defined $row->[$j];
                 my $field_idx = $field_idxs[$j];
+                #say "D:j=$j, field_idx=$field_idx";
                 next unless $field_idx >= 0;
                 my $fmt_name = $fmt_names[$j];
+                #say "D:j=$j fmt_name=$fmt_name";
                 next unless $fmt_name;
                 my $fmt_opts = $fmt_opts [$j];
                 if ($fmt_name eq 'iso8601_datetime' || $fmt_name eq 'iso8601_date') {
@@ -402,7 +409,13 @@ sub format {
             } elsif (Data::Check::Structure::is_aos($data, {max=>$max})) {
                 return join("", map {"$_\n"} @$data);
             } elsif (Data::Check::Structure::is_aoaos($data, {max=>$max})) {
-                return __gen_table($data, 0, $res->[3], $format);
+                my $header_row = 0;
+                my $data = $data;
+                if ($res->[3]{'table.fields'}) {
+                    $data = [$res->[3]{'table.fields'}, @$data];
+                    $header_row = 1;
+                }
+                return __gen_table($data, $header_row, $res->[3], $format);
             } elsif (Data::Check::Structure::is_hos($data, {max=>$max})) {
                 $data = [map {[$_, $data->{$_}]} sort keys %$data];
                 unshift @$data, ["key", "value"];
