@@ -163,6 +163,8 @@ sub __gen_table {
             }
         }
 
+        my $nf;
+
         for my $i (0..$#{$data}) {
             next if $i==0 && $header_row;
             my $row = $data->[$i];
@@ -198,6 +200,17 @@ sub __gen_table {
                 } elsif ($fmt_name eq 'percent') {
                     my $fmt = $fmt_opts->{sprintf} // '%.2f%%';
                     $row->[$j] = sprintf($fmt, $row->[$j] * 100);
+                } elsif ($fmt_name eq 'number') {
+                    $nf //= do {
+                        require Number::Format;
+                        Number::Format->new(
+                            THOUSANDS_SEP => $fmt_opts->{thousands_sep} // ',',
+                            DECIMAL_POINT => $fmt_opts->{decimal_point} // '.',
+                            DECIMAL_FILL  => $fmt_opts->{decimal_fill} // 1,
+                        );
+                    };
+                    $row->[$j] = $nf->format_number(
+                        $row->[$j], $fmt_opts->{precision} // 0);
                 }
             }
         }
