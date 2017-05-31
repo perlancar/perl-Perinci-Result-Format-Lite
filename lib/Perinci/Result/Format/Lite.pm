@@ -146,6 +146,8 @@ sub __gen_table {
 
     # format cells
     {
+        no warnings; # XXX we just want to turn off 'negative repeat count does nothing' from the operator x
+
         my $tff   = $resmeta->{'table.fields'} or last;
         my $tffmt = $resmeta->{'table.field_formats'} or last;
 
