@@ -146,8 +146,6 @@ sub __gen_table {
 
     # format cells
     {
-        no warnings; # XXX we just want to turn off 'negative repeat count does nothing' from the operator x
-
         my $tff   = $resmeta->{'table.fields'} or last;
         my $tffmt = $resmeta->{'table.field_formats'} or last;
 
@@ -221,7 +219,10 @@ sub __gen_table {
     if ($format eq 'text-pretty') {
         # align columns
         {
-            no warnings 'uninitialized';
+            # XXX we just want to turn off 'uninitialized' and 'negative repeat
+            # count does nothing' from the operator x
+            no warnings;
+
             my $tfa = $resmeta->{'table.field_aligns'} or last;
             last unless @$data;
 
