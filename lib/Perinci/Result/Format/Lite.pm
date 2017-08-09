@@ -464,6 +464,25 @@ sub format {
     my $tff = $res->[3]{'table.fields'};
     $res = $res->[2] if $is_naked;
 
+    if ($format eq 'perl') {
+        my $use_color = $ENV{COLOR} // (-t STDOUT);
+        if ($use_color && eval { require Data::Dump::Color; 1 }) {
+            return Data::Dump::Color::dump($res);
+        } elsif (eval { require Data::Dump; 1 }) {
+            return Data::Dump::dump($res);
+        } else {
+            require Data::Dumper;
+            local $Data::Dumper::Terse = 1;
+            local $Data::Dumper::Indent = 1;
+            local $Data::Dumper::Useqq = 1;
+            local $Data::Dumper::Deparse = 1;
+            local $Data::Dumper::Quotekeys = 0;
+            local $Data::Dumper::Sortkeys = 1;
+            local $Data::Dumper::Trailingcomma = 1;
+            return Data::Dumper::Dumper($res);
+        }
+    }
+
     unless ($format =~ /\Ajson(-pretty)?\z/) {
         warn "Unknown format '$format', fallback to json-pretty";
         $format = 'json-pretty';
@@ -518,6 +537,8 @@ L<Text::Table::Org> backend is already installed):
 Set the default of C<table_column_orders> in C<format_options> in result
 metadata, similar to what's implemented in L<Perinci::Result::Format> and
 L<Data::Format::Pretty::Console>.
+
+=head2 COLOR => bool
 
 
 =head1 SEE ALSO
