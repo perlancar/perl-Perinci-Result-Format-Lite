@@ -201,16 +201,14 @@ sub __gen_table {
                     my $fmt = $fmt_opts->{sprintf} // '%.2f%%';
                     $row->[$j] = sprintf($fmt, $row->[$j] * 100);
                 } elsif ($fmt_name eq 'number') {
-                    $nf //= do {
-                        require Number::Format;
-                        Number::Format->new(
-                            THOUSANDS_SEP => $fmt_opts->{thousands_sep} // ',',
-                            DECIMAL_POINT => $fmt_opts->{decimal_point} // '.',
-                            DECIMAL_FILL  => $fmt_opts->{decimal_fill} // 1,
-                        );
-                    };
-                    $row->[$j] = $nf->format_number(
-                        $row->[$j], $fmt_opts->{precision} // 0);
+                    require Number::Format::BigFloat;
+                    $row->[$j] = Number::Format::BigFloat::format_number(
+                        $row->[$j], {
+                            thousands_sep  => $fmt_opts->{thousands_sep} // ',',
+                            decimal_point  => $fmt_opts->{decimal_point} // '.',
+                            decimal_digits => $fmt_opts->{precision} // 0,
+                            # XXX decimal_fill
+                        });
                 }
             }
         }
