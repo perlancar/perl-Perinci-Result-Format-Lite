@@ -130,4 +130,20 @@ subtest "meta:table.field_aligns" => sub {
    );
 };
 
+subtest "meta:table.field_orders" => sub {
+    like($fmt->(
+        [200,
+         "OK",
+         [
+             {a=>0, b=>1, c=>2, d=>3, e1=>4, e2=>5, e3=>6},
+             # XXX time=DateTime instance
+             # XXX time=Time::Moment instance
+         ],
+         {
+             'table.field_orders'=>['a', 'b', 'c', qr/^e/ => sub { $_[0] cmp $_[1] }],
+         },],
+        "text-pretty"),
+         qr/^\| \s* a \s* \| \s* b \s* \| \s* c \s* \| \s* e1 \s* \| \s* e2 \s* \| \s* e3 \s* \| \s* d \s* \|$/mx);
+};
+
 done_testing();
