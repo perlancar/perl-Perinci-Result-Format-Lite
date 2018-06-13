@@ -71,6 +71,19 @@ subtest "meta:table.hide_unknown_fields" => sub {
          qr/^\| \s* a \s* \| \s* b \s* \| \s* f \s* \| \s* g \s* \|$/mx);
 };
 
+subtest "meta:table.field_labels" => sub {
+    like($fmt->(
+        [200,
+         "OK",
+         [{apple=>1}, {baboon=>2}, {crossbow=>3}, {doritos=>4}],
+         {
+             'table.fields'=>[qw/apple baboon crossbow edamame/],
+             'table.field_labels'=>['fruit', 'animal', undef, 'plant'],
+         },],
+        "text-pretty"),
+         qr/^\| \s* fruit \s* \| \s* animal \s* \| \s* crossbow \s* \| \s* doritos \s* \|$/mx);
+};
+
 subtest "meta:table.field_units" => sub {
     like($fmt->(
         [200,
