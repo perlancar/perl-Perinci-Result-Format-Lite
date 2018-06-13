@@ -133,16 +133,21 @@ sub __gen_table {
         }
     }
 
-    # add field units as label suffix to header (" (UNIT)")
+    # determine field labels
     {
         last unless $header_row && @$data;
         my $tff = $resmeta->{'table.fields'} or last;
-        my $tfu = $resmeta->{'table.field_units'} or last;
+        my $tfl = $resmeta->{'table.field_labels'};
+        my $tfu = $resmeta->{'table.field_units'};
         for my $i (0..$#columns) {
             my $field_idx = $field_idxs[$i];
             next unless $field_idx >= 0;
-            next unless defined $tfu->[$field_idx];
-            $data->[0][$i] .= " ($tfu->[$field_idx])";
+            if ($tfl && defined $tfl->[$field_idx]) {
+                $data->[0][$i] = $tfl->[$field_idx];
+            } elsif ($tfu && defined $tfu->[$field_idx]) {
+                # add field units as label suffix to header (" (UNIT)")
+                $data->[0][$i] .= " ($tfu->[$field_idx])";
+            }
         }
     }
 
