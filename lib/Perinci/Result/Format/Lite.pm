@@ -151,21 +151,24 @@ sub __gen_table {
         }
     }
 
-    # format cells
+  FORMAT_CELLS:
     {
-        my $tff   = $resmeta->{'table.fields'} or last;
-        my $tffmt = $resmeta->{'table.field_formats'} or last;
+        my $tffmt         = $resmeta->{'table.field_formats'};
+        my $tffmt_code    = $resmeta->{'table.field_format_code'};
+        my $tffmt_default = $resmeta->{'table.default_field_format'};
+        last unless $tffmt || $tffmt_code || $tffmt_default;
 
-        my (@fmt_names, @fmt_opts); # index: column indexes
+        my (@fmt_names, @fmt_opts); # key: column index
         for my $i (0..$#columns) {
             my $field_idx = $field_idxs[$i];
-            next unless $field_idx >= 0;
-            next unless defined $tffmt->[$field_idx];
-            if (ref($tffmt->[$field_idx]) eq 'ARRAY') {
-                $fmt_names[$i] = $tffmt->[$field_idx][0];
-                $fmt_opts [$i] = $tffmt->[$field_idx][1] // {};
+            my $fmt = $tffmt_code ? $tffmt_code->($columns[$i]) : undef;
+            $fmt //= $tffmt->[$field_idx] if $field_idx >= 0;
+            $fmt //= $tffmt_default;
+            if (ref $fmt eq 'ARRAY') {
+                $fmt_names[$i] = $fmt->[0];
+                $fmt_opts [$i] = $fmt->[1] // {};
             } else {
-                $fmt_names[$i] = $tffmt->[$field_idx];
+                $fmt_names[$i] = $fmt;
                 $fmt_opts [$i] = {};
             }
         }
@@ -177,9 +180,6 @@ sub __gen_table {
             my $row = $data->[$i];
             for my $j (0..$#columns) {
                 next unless defined $row->[$j];
-                my $field_idx = $field_idxs[$j];
-                #say "D:j=$j, field_idx=$field_idx";
-                next unless $field_idx >= 0;
                 my $fmt_name = $fmt_names[$j];
                 #say "D:j=$j fmt_name=$fmt_name";
                 next unless $fmt_name;
@@ -222,19 +222,23 @@ sub __gen_table {
     }
 
     if ($format eq 'text-pretty') {
-        # align columns
+      ALIGN_COLUMNS:
         {
             # XXX we just want to turn off 'uninitialized' and 'negative repeat
             # count does nothing' from the operator x
             no warnings;
 
-            my $tfa = $resmeta->{'table.field_aligns'} or last;
+            my $tfa         = $resmeta->{'table.field_aligns'};
+            my $tfa_code    = $resmeta->{'table.field_align_code'};
+            my $tfa_default = $resmeta->{'table.default_field_align'};
+            last unless $tfa || $tfa_code || $tfa_default;
             last unless @$data;
 
             for my $colidx (0..$#columns) {
                 my $field_idx = $field_idxs[$colidx];
-                next unless $field_idx >= 0;
-                my $align = $tfa->[$field_idx];
+                my $align = $tfa_code ? $tfa_code->($columns[$colidx]) : undef;
+                $align //= $tfa->[$field_idx] if $field_idx >= 0;
+                $align //= $tfa_default;
                 next unless $align;
 
                 # determine max widths
@@ -476,6 +480,7 @@ sub format {
         } elsif (eval { require Data::Dump; 1 }) {
             return Data::Dump::dump($res);
         } else {
+            no warnings 'once';
             require Data::Dumper;
             local $Data::Dumper::Terse = 1;
             local $Data::Dumper::Indent = 1;
