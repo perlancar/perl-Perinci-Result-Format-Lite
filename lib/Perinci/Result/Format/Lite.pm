@@ -185,12 +185,13 @@ sub __gen_table {
                 next unless $fmt_name;
                 my $fmt_opts = $fmt_opts [$j];
                 if ($fmt_name eq 'iso8601_datetime' || $fmt_name eq 'iso8601_date') {
-                    if ($row->[$j] =~ /\A[0-9]+\z/) {
+                    if ($row->[$j] =~ /\A[0-9]+(\.[0-9]*)?\z/) {
+                        my $frac = $1 ? "0$1"+0 : 0;
                         my @t = gmtime($row->[$j]);
                         if ($fmt_name eq 'iso8601_datetime') {
                             $row->[$j] = sprintf(
-                                "%04d-%02d-%02dT%02d:%02d:%02dZ",
-                                $t[5]+1900, $t[4]+1, $t[3], $t[2], $t[1], $t[0]);
+                                "%04d-%02d-%02dT%02d:%02d:".($frac ? "%06.3f" : "%02d")."Z",
+                                $t[5]+1900, $t[4]+1, $t[3], $t[2], $t[1], $t[0]+$frac);
                         } else {
                             $row->[$j] = sprintf(
                                 "%04d-%02d-%02d",
