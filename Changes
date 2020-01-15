@@ -102,7 +102,7 @@
 	- [Bugfix] Woops, mixed up between left alignment and right.
 
 
-0.16    2016-06-17 (PERLANCAR)  Released-By: unreleased
+0.16    2016-06-17  Released-By: PERLANCAR; Released: no
 
         - Recognize field formats: boolstr, sci2dec.
 
@@ -202,3 +202,4 @@
 0.01     2015-09-11  Released-By: PERLANCAR
 
          - First release, extracted from Perinci-CmdLine-Lite.
+
