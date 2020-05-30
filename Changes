@@ -1,3 +1,8 @@
+0.275   2020-05-30  Released-By: PERLANCAR; Urgency: medium
+
+	- Observe field format 'filesize'.
+
+
 0.274   2018-07-04  Released-By: PERLANCAR
 
 	- Allow non-integer float for iso8601_date{,time} format, and show
