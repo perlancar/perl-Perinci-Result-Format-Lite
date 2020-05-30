@@ -200,6 +200,9 @@ sub __gen_table {
                     }
                 } elsif ($fmt_name eq 'boolstr') {
                     $row->[$j] = $row->[$j] ? "yes" : "no";
+                } elsif ($fmt_name eq 'filesize') {
+                    require Format::Human::Bytes;
+                    $row->[$j] = Format::Human::Bytes::base2($row->[$j], 0);
                 } elsif ($fmt_name eq 'sci2dec') {
                     if ($row->[$j] =~ /\A(?:[+-]?)(?:\d+\.|\d*\.(\d+))[eE]([+-]?\d+)\z/) {
                         my $n = length($1 || "") - $2; $n = 0 if $n < 0;
