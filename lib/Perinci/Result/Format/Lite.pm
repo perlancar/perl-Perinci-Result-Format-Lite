@@ -425,7 +425,7 @@ sub format {
         } else {
             require Data::Check::Structure;
             my $data = $res->[2];
-            my $max = 5;
+            my $max = 1000;
             if (!ref($data)) {
                 $data //= "";
                 $data .= "\n" unless !length($data) || $data =~ /\n\z/;
