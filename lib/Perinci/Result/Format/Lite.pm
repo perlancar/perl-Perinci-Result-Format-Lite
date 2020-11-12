@@ -343,7 +343,9 @@ sub __gen_table {
         } # END align columns
 
         my $fres;
-        if (my $backend = $ENV{FORMAT_PRETTY_TABLE_BACKEND}) {
+        my $backend = $ENV{FORMAT_PRETTY_TABLE_BACKEND};
+        $backend //= "Text::Table::Org" if $ENV{INSIDE_EMACS};
+        if ($backend) {
             require Text::Table::Any;
             $fres = Text::Table::Any::table(rows=>$data, header_row=>$header_row, backend=>$backend);
         } else {
@@ -545,6 +547,10 @@ different format, for example to generate Org tables (make sure
 L<Text::Table::Org> backend is already installed):
 
  % FORMAT_PRETTY_TABLE_BACKEND=Text::Table::Org lcpan rdeps Getopt::Lucid
+
+For convenience, a default is chosen for you under certain condition. When
+inside Emacs (environment C<INSIDE_EMACS> is set), C<Text::Table::Org> is used
+as default.
 
 =head2 FORMAT_PRETTY_TABLE_COLUMN_ORDERS => array (json)
 
