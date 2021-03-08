@@ -349,8 +349,8 @@ sub __gen_table {
             require Text::Table::Any;
             $fres = Text::Table::Any::table(rows=>$data, header_row=>$header_row, backend=>$backend);
         } else {
-            require Text::Table::Tiny;
-            $fres = Text::Table::Tiny::table(rows=>$data, header_row=>$header_row);
+            require Text::Table::Sprintf;
+            $fres = Text::Table::Sprintf::table(rows=>$data, header_row=>$header_row);
         }
         $fres .= "\n" unless $fres =~ /\R\z/ || !length($fres);
         $fres;
@@ -542,7 +542,7 @@ sub format {
 
 If this is set, will render text table using L<Text::Table::Any> (with
 C<backend> set to the value of this environment variable) instead of the default
-L<Text::Table::Tiny>. This is useful if you want to output text table in a
+L<Text::Table::Sprintf>. This is useful if you want to output text table in a
 different format, for example to generate Org tables (make sure
 L<Text::Table::Org> backend is already installed):
 
