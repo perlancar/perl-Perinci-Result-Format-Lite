@@ -1,6 +1,8 @@
 package Perinci::Result::Format::Lite;
 
+# AUTHORITY
 # DATE
+# DIST
 # VERSION
 
 use 5.010001;
@@ -259,8 +261,8 @@ sub __gen_table {
                                 push @w_bd, 0;
                                 push @w_bd, 0;
                                 push @w_ad, 0;
-                            } elsif ($cell =~ /\A([+-]?\d+)(\.?)(\d*)\z/) {
-                                # decimal notation number
+                            } elsif ($cell =~ /\A([+-]?\d+)(\.?)(\d*)[%]?\z/) {
+                                # decimal notation number (with optional percent sign). TODO: allow arbitraty units after number, e.g. ml, mcg, etc? but should we align the unit too?
                                 push @w_bd, length($1);
                                 push @w_d , length($2);
                                 push @w_ad, length($3);
