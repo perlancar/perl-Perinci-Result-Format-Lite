@@ -251,6 +251,7 @@ sub __gen_table {
                 my $maxw;
                 my ($maxw_bd, $maxw_d, $maxw_ad); # before digit, digit, after d
                 if ($align eq 'number') {
+                    # note: the logic of number aligning is now also put in Number::Pad
                     my (@w_bd, @w_d, @w_ad);
                     for my $i (0..$#{$data}) {
                         my $row = $data->[$i];
