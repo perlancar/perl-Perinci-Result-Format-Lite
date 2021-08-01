@@ -230,6 +230,8 @@ sub __gen_table {
     if ($format eq 'text-pretty') {
       ALIGN_COLUMNS:
         {
+            # note: the logic of this block of code now also put in Number::Pad
+
             # XXX we just want to turn off 'uninitialized' and 'negative repeat
             # count does nothing' from the operator x
             no warnings;
@@ -251,7 +253,6 @@ sub __gen_table {
                 my $maxw;
                 my ($maxw_bd, $maxw_d, $maxw_ad); # before digit, digit, after d
                 if ($align eq 'number') {
-                    # note: the logic of number aligning is now also put in Number::Pad
                     my (@w_bd, @w_d, @w_ad);
                     for my $i (0..$#{$data}) {
                         my $row = $data->[$i];
