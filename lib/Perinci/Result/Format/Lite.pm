@@ -1,8 +1,9 @@
+## no critic: Subroutines::ProhibitSubroutinePrototypes
 package Perinci::Result::Format::Lite;
 
 use 5.010001;
-#IFUNBUILT
 use strict;
+#IFUNBUILT
 use warnings;
 #END IFUNBUILT
 
