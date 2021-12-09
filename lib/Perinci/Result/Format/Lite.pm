@@ -1,19 +1,19 @@
 package Perinci::Result::Format::Lite;
 
-# AUTHORITY
-# DATE
-# DIST
-# VERSION
-
 use 5.010001;
 #IFUNBUILT
 use strict;
 use warnings;
 #END IFUNBUILT
 
+use Exporter qw(import);
 use List::Util qw(first max);
 
-use Exporter qw(import);
+# AUTHORITY
+# DATE
+# DIST
+# VERSION
+
 our @EXPORT_OK = qw(format);
 
 # copy-pasted from List::MoreUtils::PP
@@ -351,7 +351,12 @@ sub __gen_table {
         $backend //= "Text::Table::Org" if $ENV{INSIDE_EMACS};
         if ($backend) {
             require Text::Table::Any;
-            $fres = Text::Table::Any::table(rows=>$data, header_row=>$header_row, backend=>$backend);
+            $fres = Text::Table::Any::table(
+                rows => $data,
+                header_row => $header_row,
+                backend => $backend,
+                (title => $resmeta->{title}) x !!defined($resmeta->{title}),
+            );
         } else {
             require Text::Table::Sprintf;
             $fres = Text::Table::Sprintf::table(rows=>$data, header_row=>$header_row);
