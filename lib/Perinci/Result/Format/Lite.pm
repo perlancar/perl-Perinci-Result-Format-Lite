@@ -546,6 +546,17 @@ sub format {
 
 =head1 DESCRIPTION
 
+This module formats L<enveloped result structure|Rinci::function/"Enveloped
+result"> to "pretty text" if it can do so, e.g. the structure can be represented
+as a 2-dimensional table. Otherwise, it falls back to JSON or Perl. The table
+formats supported include CSV, TSV, LTSV, or HTML. More table formats (e.g. Org,
+Markdown) are supported via L<Text::Table::Any> when you set
+L</"FORMAT_PRETTY_TABLE_BACKEND">.
+
+This module is a more lightweight version of L<Perinci::Result::Format> but the
+long-term goal is to reunite the two formatting modules back to a
+modular/pluggable module.
+
 
 =head1 FUNCTIONS
 
@@ -554,12 +565,12 @@ sub format {
 
 =head1 ENVIRONMENT
 
-=head2 FORMAT_PRETTY_TABLE_BACKEND => str
+=head2 FORMAT_PRETTY_TABLE_BACKEND
 
-If this is set, will render text table using L<Text::Table::Any> (with
-C<backend> set to the value of this environment variable) instead of the default
-L<Text::Table::Sprintf>. This is useful if you want to output text table in a
-different format, for example to generate Org tables (make sure
+Str, optional. If this is set, will render text table using L<Text::Table::Any>
+(with C<backend> set to the value of this environment variable) instead of the
+default L<Text::Table::Sprintf>. This is useful if you want to output text table
+in a different format, for example to generate Org tables (make sure
 L<Text::Table::Org> backend is already installed):
 
  % FORMAT_PRETTY_TABLE_BACKEND=Text::Table::Org lcpan rdeps Getopt::Lucid
