@@ -379,6 +379,12 @@ sub __gen_table {
                     } @$row)."\n";
             } @$data
         );
+    } elsif ($format eq 'tsv') {
+        no warnings 'uninitialized';
+        join("", map { my $row = $_; join("\t", @$row)."\n" } @$data);
+    } elsif ($format eq 'ltsv') {
+        no warnings 'uninitialized';
+        join("", map { my $row = $_; join("\t", map { "$columns[$_]:$row->[$_]" } 0 .. $#{$row})."\n" } @$data);
     } elsif ($format eq 'html') {
         no warnings 'uninitialized';
         require HTML::Entities;
@@ -425,7 +431,7 @@ sub __gen_table {
 sub format {
     my ($res, $format, $is_naked, $cleanse) = @_;
 
-    if ($format =~ /\A(text|text-simple|text-pretty|csv|html)\z/) {
+    if ($format =~ /\A(text|text-simple|text-pretty|csv|tsv|ltsv|html)\z/) {
         $format = $format eq 'text' ?
             ((-t STDOUT) ? 'text-pretty' : 'text-simple') : $format;
         no warnings 'uninitialized';
