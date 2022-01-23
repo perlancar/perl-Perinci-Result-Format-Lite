@@ -356,7 +356,7 @@ sub __gen_table {
                 rows => $data,
                 header_row => $header_row,
                 backend => $backend,
-                (title => $resmeta->{title}) x !!defined($resmeta->{title}),
+                (caption => $resmeta->{caption}) x !!defined($resmeta->{caption}),
             );
         } else {
             require Text::Table::Sprintf;
