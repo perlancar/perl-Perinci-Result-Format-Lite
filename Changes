@@ -1,3 +1,8 @@
+0.286   2022-05-03  Released-By: PERLANCAR; Urgency: medium
+
+	- [ux] Align 'right' number columns by default.
+
+
 0.285   2022-01-23  Released-By: PERLANCAR; Urgency: medium
 
 	- Adjust with Rinci 1.1.100 and Text::Table::Any 0.111 ('title'
