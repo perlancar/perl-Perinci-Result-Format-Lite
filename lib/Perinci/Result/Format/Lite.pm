@@ -231,6 +231,8 @@ sub __gen_table {
     if ($format eq 'text-pretty') {
       ALIGN_COLUMNS:
         {
+            last unless @$data;
+
             # note: the logic of this block of code now also put in Number::Pad
 
             # XXX we just want to turn off 'uninitialized' and 'negative repeat
@@ -240,8 +242,23 @@ sub __gen_table {
             my $tfa         = $resmeta->{'table.field_aligns'};
             my $tfa_code    = $resmeta->{'table.field_align_code'};
             my $tfa_default = $resmeta->{'table.default_field_align'};
-            last unless $tfa || $tfa_code || $tfa_default;
-            last unless @$data;
+
+            # align numbers by default, with 'right' currently as 'number' is too slow
+            unless ($tfa || $tfa_code || $tfa_default) {
+                $tfa = [map { undef } 0 .. $#columns];
+              COLUMN:
+                for my $colidx (0 .. $#columns) {
+                    for my $i (0 .. $#{$data}) {
+                        next if $header_row && $i == 0;
+                        my $cell = $data->[$i][$colidx];
+                        next unless defined $cell;
+                        next COLUMN unless $cell =~ /\A[+-]?[0-9]+(?:\.[0-9]*)?(?:[Ee][+-]?[0-9]+)?(?:%)?\z/;
+                    }
+                    $tfa->[$colidx] = 'right';
+                }
+            }
+            #use DD; dd $tfa;
+            #say "D1";
 
             for my $colidx (0..$#columns) {
                 my $field_idx = $field_idxs[$colidx];
@@ -346,6 +363,7 @@ sub __gen_table {
                 }
             } # for $colidx
         } # END align columns
+        #say "D2";
 
         my $fres;
         my $backend = $ENV{FORMAT_PRETTY_TABLE_BACKEND};
