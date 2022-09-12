@@ -350,12 +350,20 @@ sub __gen_table {
         my $fres;
         my $backend = $ENV{FORMAT_PRETTY_TABLE_BACKEND};
         $backend //= "Text::Table::Org" if $ENV{INSIDE_EMACS};
+        my $backend_opts = $ENV{FORMAT_PRETTY_TABLE_BACKEND_OPTS};
+        if (defined $backend_opts) {
+            $backend_opts = eval { _json->decode($backend_opts) };
+            die "Invalid JSON in FORMAT_PRETTY_TABLE_BACKEND_OPTS: $@" if $@;
+        } else {
+            $backend_opts = {};
+        }
         if ($backend) {
             require Text::Table::Any;
             $fres = Text::Table::Any::table(
                 rows => $data,
                 header_row => $header_row,
                 backend => $backend,
+                backend_opts => $backend_opts,
                 (caption => $resmeta->{caption}) x !!defined($resmeta->{caption}),
             );
         } else {
@@ -578,6 +586,16 @@ L<Text::Table::Org> backend is already installed):
 For convenience, a default is chosen for you under certain condition. When
 inside Emacs (environment C<INSIDE_EMACS> is set), C<Text::Table::Org> is used
 as default.
+
+=head2 FORMAT_PRETTY_TABLE_BACKEND_OPTS
+
+Str, JSON-encoding expected. This setting is to accompany
+L</FORMAT_PRETTY_TABLE_BACKEND>, to be passed to
+L<Text::Table::Any>C<::table()>'s C<backend_opts> argument. It should be a hash
+encoded in JSON, e.g.:
+
+ # keep table aligned in the presence of wide Unicode characters
+ % FORMAT_PRETTY_TABLE_BACKEND=Text::Table::More FORMAT_PRETTY_TABLE_BACKEND_OPTS='{"wide_char":1}' tabledata locale::JP::City::MIC --page
 
 =head2 FORMAT_PRETTY_TABLE_COLUMN_ORDERS => array (json)
 
